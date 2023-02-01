@@ -1,7 +1,4 @@
-"""
-@author zhouyiheng.go@bytedance.com
-@created 2022/07/29
-"""
+# coding:utf-8
 
 import datetime
 import hashlib
