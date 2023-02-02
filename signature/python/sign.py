@@ -9,15 +9,15 @@ from urllib.parse import quote
 import requests
 
 # 以下参数视服务不同而不同，一个服务内通常是一致的
-Service = "CDN"
-Version = "2021-03-01"
+Service = "iam"
+Version = "2018-01-01"
 Region = "cn-north-1"
-Host = "cdn.volcengineapi.com"
-ContentType = "application/json"
+Host = "iam.volcengineapi.com"
+ContentType = "application/x-www-form-urlencoded"
 
 # 请求的凭证，从IAM或者STS服务中获取
-AK = "AKLTExample***************"
-SK = "TmpBd056Rm1***************"
+AK = "AKLTExample*********"
+SK = "QwERrtyasdf*********"
 # 当使用临时凭证时，需要使用到SessionToken传入Header，并计算进SignedHeader中，请自行在header参数中添加X-Security-Token头
 # SessionToken = ""
 
@@ -47,7 +47,7 @@ def hash_sha256(content: str):
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
-# 第二步：创建一个 CDN 的 API 请求函数。签名计算的过程包含在该函数中。
+# 第二步：签名请求函数
 def request(method, date, query, header, ak, sk, action, body):
     # 第三步：创建身份证明。其中的 Service 和 Region 字段是固定的。ak 和 sk 分别代表
     # AccessKeyID 和 SecretAccessKey。同时需要初始化签名结构体。一些签名计算时需要的属性也在这里处理。
@@ -143,14 +143,10 @@ if __name__ == "__main__":
     # print(response_body)
 
     now = datetime.datetime.utcnow()
-    request_body = {
-        "Interval": "5min",
-        "Metric": "bandwidth",
-        "StartTime": int((now - datetime.timedelta(minutes=5)).timestamp()),
-        "EndTime": int(now.timestamp()),
-        "Domain": "example.com",
-    }
 
-    # Body的格式需要配合Content-Type，API使用的类型请阅读具体的官方文档
-    response_body = request("POST", now, {}, {}, AK, SK, "DescribeCdnData", json.dumps(request_body))
+    # Body的格式需要配合Content-Type，API使用的类型请阅读具体的官方文档，如:json格式需要json.dumps(obj)
+    response_body = request("GET", now, {"Limit": "2"}, {}, AK, SK, "ListUsers", None)
+    print(response_body)
+
+    response_body = request("POST", now, {"Limit": "10"}, {}, AK, SK, "ListUsers", "UnUseParam=ASDF")
     print(response_body)
