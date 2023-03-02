@@ -30,7 +30,7 @@ Host = "iam.volcengineapi.com"
 ContentType = "application/x-www-form-urlencoded"
 
 # 请求的凭证，从IAM或者STS服务中获取
-AK = "AKLTExample*********"
+AK = "AKExample***********"
 SK = "QwERrtyasdf*********"
 # 当使用临时凭证时，需要使用到SessionToken传入Header，并计算进SignedHeader中，请自行在header参数中添加X-Security-Token头
 # SessionToken = ""
