@@ -54,10 +54,10 @@ function request($method, $query, $header, $ak, $sk, $action, $body)
         'method' => $method,
         'contentType' => $ContentType,
         'date' => gmdate('Ymd\THis\Z'),
-        'query' => array_merge($query, [
+        'query' => ksort(array_merge($query, [
             'Action' => $action,
             'Version' => $Version
-        ])
+        ]))
     ];
 
     // 第三步：接下来开始计算签名。在计算签名前，先准备好用于接收签算结果的 signResult 变量，并设置一些参数。
