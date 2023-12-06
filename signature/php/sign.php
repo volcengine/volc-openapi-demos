@@ -46,6 +46,11 @@ function request($method, $query, $header, $ak, $sk, $action, $body)
     ];
 
     // 初始化签名结构体
+    $query = array_merge($query, [
+      'Action' => $action,
+      'Version' => $Version
+    ]);
+    ksort($query);
     $requestParam = [
         // body是http请求需要的原生body
         'body' => $body,
@@ -54,10 +59,7 @@ function request($method, $query, $header, $ak, $sk, $action, $body)
         'method' => $method,
         'contentType' => $ContentType,
         'date' => gmdate('Ymd\THis\Z'),
-        'query' => ksort(array_merge($query, [
-            'Action' => $action,
-            'Version' => $Version
-        ]))
+        'query' => $query
     ];
 
     // 第三步：接下来开始计算签名。在计算签名前，先准备好用于接收签算结果的 signResult 变量，并设置一些参数。
