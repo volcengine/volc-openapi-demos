@@ -110,7 +110,7 @@ def request(method, date, query, header, ak, sk, action, body):
                  "host:" + request_param["host"],
                  "x-content-sha256:" + x_content_sha256,
                  "x-date:" + x_date,
-             ]
+                 ]
          ),
          "",
          signed_headers_str,
@@ -139,7 +139,7 @@ def request(method, date, query, header, ak, sk, action, body):
         credential["access_key_id"] + "/" + credential_scope,
         signed_headers_str,
         signature,
-    )
+        )
     header = {**header, **sign_result}
     # header = {**header, **{"X-Security-Token": SessionToken}}
     # 第六步：将 Signature 签名写入 HTTP Header 中，并发送 HTTP 请求。
@@ -151,12 +151,25 @@ def request(method, date, query, header, ak, sk, action, body):
                          )
     return r.json()
 
+# datetime.utcnow() 在 3.12+ 已经过期，使用如下方法兼容
+def utc_now():
+
+    try:
+        from datetime import timezone
+        return datetime.datetime.now(timezone.utc)
+    except ImportError:
+        class UTC(datetime.tzinfo):
+            def utcoffset(self, dt):
+                return datetime.timedelta(0)
+            def tzname(self, dt):
+                return "UTC"
+            def dst(self, dt):
+                return datetime.timedelta(0)
+        return datetime.datetime.now(UTC())
+
 
 if __name__ == "__main__":
-    # response_body = request("Get", datetime.datetime.utcnow(), {}, {}, AK, SK, "ListUsers", None)
-    # print(response_body)
-
-    now = datetime.datetime.utcnow()
+    now = utc_now()
 
     # Body的格式需要配合Content-Type，API使用的类型请阅读具体的官方文档，如:json格式需要json.dumps(obj)
     response_body = request("GET", now, {"Limit": "2"}, {}, AK, SK, "ListUsers", None)
@@ -164,3 +177,4 @@ if __name__ == "__main__":
 
     response_body = request("POST", now, {"Limit": "10"}, {}, AK, SK, "ListUsers", "UnUseParam=ASDF")
     print(response_body)
+
