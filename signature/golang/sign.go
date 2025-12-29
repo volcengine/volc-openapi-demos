@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-     http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -178,5 +178,11 @@ func main() {
 	// Post 请求例子
 	// query2 := make(url.Values)
 	// query2.Set("Limit", "1")
-	// doRequest(http.MethodPost, query2, []byte(`Scope=System`))
+	// jsonBody := map[string]string{
+	// 	"req_key": "jimeng_t2i_v40",
+	// 	"prompt":  "a photo of a cat",
+	// }
+	// bodyBytes, _ := json.Marshal(jsonBody)
+	// doRequest(http.MethodPost, query2, bodyBytes)
+
 }
