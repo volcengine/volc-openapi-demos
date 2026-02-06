@@ -31,7 +31,7 @@ using System.Text;
 var iamSign = new Sign(region: "cn-beijing",
     service: "iam",
     schema: "https",
-    host: "open.volcengineapi.com",
+    host: "iam.volcengineapi.com",
     path: "/",
     ak: "Your AK",
     sk: "Your SK"
@@ -58,7 +58,7 @@ Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp1.Content.ReadAsStream()
 var cvSign = new Sign(region: "cn-beijing",
     service: "cv",
     schema: "https",
-    host: "open.volcengineapi.com",
+    host: "visual.volcengineapi.com",
     path: "/",
     ak: "Your AK",
     sk: "Your SK"
@@ -83,7 +83,7 @@ Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp2.Content.ReadAsStream()
 var ecsSign = new Sign(region: "cn-beijing",
     service: "ecs",
     schema: "https",
-    host: "open.volcengineapi.com",
+    host: "ecs.cn-beijing.volcengineapi.com",
     path: "/",
     ak: "Your AK",
     sk: "Your SK"
