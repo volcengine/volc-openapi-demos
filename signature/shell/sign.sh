@@ -74,33 +74,6 @@ SCHEMA="https"
 
 # Request parameter configuration
 
-# --------------------------------------------------------------------------------
-# Example 1: POST Request
-# --------------------------------------------------------------------------------
-# SERVICE="billing"
-# METHOD="POST"
-# VERSION="2022-01-01"
-# CONTENT_TYPE="application/json"
-# BODY="{\"Limit\":1}"
-
-# declare -a QUERY_PARAMS
-# QUERY_PARAMS+=("Action" "ListCoupons")
-# QUERY_PARAMS+=("Version" "$VERSION")
-
-# --------------------------------------------------------------------------------
-# Example 2: GET Request
-# --------------------------------------------------------------------------------
-SERVICE="iam"
-METHOD="GET"
-VERSION="2018-01-01"
-CONTENT_TYPE="application/json" # GET request content-type usually does not affect signature unless there is a body
-BODY="{}"
-
-declare -a QUERY_PARAMS
-QUERY_PARAMS+=("Action" "ListUsers")
-QUERY_PARAMS+=("Version" "$VERSION")
-QUERY_PARAMS+=("Limit" "1")
-
 # URL encoding function
 url_encode() {
     local string="$1"
@@ -230,5 +203,54 @@ ${hashed_canonical_request}"
         -d "$body" 
 }
 
-# Execute request
+# --------------------------------------------------------------------------------
+# Example 1: POST Json Request - ListCoupons (billing service)
+# --------------------------------------------------------------------------------
+echo "=== Example 1: POST Json Request - ListCoupons ==="
+SERVICE="billing"
+METHOD="POST"
+VERSION="2022-01-01"
+CONTENT_TYPE="application/json"
+BODY="{\"Limit\":1}"
+
+declare -a QUERY_PARAMS=()
+QUERY_PARAMS+=("Action" "ListCoupons")
+QUERY_PARAMS+=("Version" "$VERSION")
+
 do_request
+echo ""
+
+# --------------------------------------------------------------------------------
+# Example 2: GET Request - ListUsers (iam service)
+# --------------------------------------------------------------------------------
+echo "=== Example 2: GET Request - ListUsers ==="
+SERVICE="iam"
+METHOD="GET"
+VERSION="2018-01-01"
+CONTENT_TYPE="application/json"
+BODY="{}"
+
+declare -a QUERY_PARAMS=()
+QUERY_PARAMS+=("Action" "ListUsers")
+QUERY_PARAMS+=("Version" "$VERSION")
+QUERY_PARAMS+=("Limit" "1")
+
+do_request
+echo ""
+
+# --------------------------------------------------------------------------------
+# Example 3: POST Form Request - DescribeImages (ecs service)
+# --------------------------------------------------------------------------------
+echo "=== Example 3: POST Form Request - DescribeImages ==="
+SERVICE="ecs"
+METHOD="POST"
+VERSION="2020-04-01"
+CONTENT_TYPE="application/x-www-form-urlencoded"
+BODY="OsType=Linux&MaxResults=1"
+
+declare -a QUERY_PARAMS=()
+QUERY_PARAMS+=("Action" "DescribeImages")
+QUERY_PARAMS+=("Version" "$VERSION")
+
+do_request
+echo ""

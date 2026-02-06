@@ -24,78 +24,81 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Web;
 
-var sign = new Sign(region: "cn-north-1",
-    service: "imagex",
+// --------------------------------------------------------------------------------
+// Example 1: GET Request - ListUsers (iam service)
+// --------------------------------------------------------------------------------
+var iamSign = new Sign(region: "cn-beijing",
+    service: "iam",
     schema: "https",
-    host: "imagex.volcengineapi.com",
+    host: "open.volcengineapi.com",
     path: "/",
-    ak: "ak",
-    sk: "sk"
+    ak: "Your AK",
+    sk: "Your SK"
 );
 
-var resp = sign.Request(
-    method: HttpMethod.Get,
-    queryList: new List<KeyValuePair<string, string>>(),
-    body: Array.Empty<byte>(),
-    contentType: "",
-    date: DateTimeOffset.Now,
-    action: "GetImageServiceSubscription",
-    version: "2018-08-01"
-);
-Console.WriteLine(resp);
-Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp.Content.ReadAsStream())));
-Console.WriteLine("================");
-
-var resp2 = sign.Request(
+var resp1 = iamSign.Request(
     method: HttpMethod.Get,
     queryList: new List<KeyValuePair<string, string>>()
     {
-        new KeyValuePair<string, string>("ServiceId", "ServiceId"),
-        new KeyValuePair<string, string>("UploadNum", "5"),
-        new KeyValuePair<string, string>("StoreKeys", "5.jpg"),
-        new KeyValuePair<string, string>("StoreKeys", "1.jpg"),
-        new KeyValuePair<string, string>("StoreKeys", "2.jpg"),
-        new KeyValuePair<string, string>("StoreKeys", "4.jpg"),
-        new KeyValuePair<string, string>("StoreKeys", "3.jpg"),
+        new KeyValuePair<string, string>("Limit", "1")
     },
     body: Array.Empty<byte>(),
-    contentType: "",
-    date: DateTimeOffset.Now,
-    action: "ApplyImageUpload",
-    version: "2018-08-01"
+    contentType: "application/x-www-form-urlencoded",
+    date: DateTimeOffset.UtcNow,
+    action: "ListUsers",
+    version: "2018-01-01"
 );
+Console.WriteLine(resp1);
+Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp1.Content.ReadAsStream())));
+
+// --------------------------------------------------------------------------------
+// Example 2: POST Json Request - CVSync2AsyncSubmitTask (cv service)
+// --------------------------------------------------------------------------------
+var cvSign = new Sign(region: "cn-beijing",
+    service: "cv",
+    schema: "https",
+    host: "open.volcengineapi.com",
+    path: "/",
+    ak: "Your AK",
+    sk: "Your SK"
+);
+
+var resp2 = cvSign.Request(
+    method: HttpMethod.Post,
+    queryList: new List<KeyValuePair<string, string>>(),
+    body: Encoding.UTF8.GetBytes("{\"force_single\":false,\"max_ratio\":3,\"min_ratio\":0.33,\"prompt\":\"生成一张天空的图片\",\"req_key\":\"jimeng_t2i_v40\",\"scale\":0.5,\"size\":4194304}"),
+    contentType: "application/json",
+    date: DateTimeOffset.UtcNow,
+    action: "CVSync2AsyncSubmitTask",
+    version: "2022-08-31"
+);
+
 Console.WriteLine(resp2);
 Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp2.Content.ReadAsStream())));
-Console.WriteLine("================");
 
-var resp3 = sign.Request(
-    method: HttpMethod.Post,
-    queryList: new List<KeyValuePair<string, string>>()
-    {
-        new KeyValuePair<string, string>("ServiceId", "ServiceId")
-    },
-    body: JsonSerializer.SerializeToUtf8Bytes(new
-    {
-        domain = "domain",
-        https = new
-        {
-            cert_id = "cert_id",
-            enable_http2 = true,
-            enable_https = true,
-            enable_force_redirect = true,
-            force_redirect_code = "301",
-            force_redirect_type = "http2https",
-            tls_versions = new[] { "tlsv1.2", "tlsv1.3" }
-        },
-    }),
-    contentType: "application/json",
-    date: DateTimeOffset.Now,
-    action: "UpdateHttps",
-    version: "2018-08-01"
+// --------------------------------------------------------------------------------
+// Example 3: POST Form Request - DescribeImages (ecs service)
+// --------------------------------------------------------------------------------
+var ecsSign = new Sign(region: "cn-beijing",
+    service: "ecs",
+    schema: "https",
+    host: "open.volcengineapi.com",
+    path: "/",
+    ak: "Your AK",
+    sk: "Your SK"
 );
+
+var resp3 = ecsSign.Request(
+    method: HttpMethod.Post,
+    queryList: new List<KeyValuePair<string, string>>(),
+    body: Encoding.UTF8.GetBytes("OsType=Linux&MaxResults=1"),
+    contentType: "application/x-www-form-urlencoded",
+    date: DateTimeOffset.UtcNow,
+    action: "DescribeImages",
+    version: "2020-04-01"
+);
+
 Console.WriteLine(resp3);
 Console.WriteLine(Encoding.UTF8.GetString(ReadFully(resp3.Content.ReadAsStream())));
 
@@ -153,7 +156,7 @@ class Sign
         string xContentSha256 = ToHexString(HashSha256(body));
         string xDate = date.UtcDateTime.ToString("yyyyMMdd'T'HHmmss'Z'");
         string shortXDate = xDate[..8];
-        string signHeader = "host;x-date;x-content-sha256;content-type";
+        string signHeader = "content-type;host;x-content-sha256;x-date";
 
         var realQueryList = new NameValueCollection();
         queryList.ForEach(s => realQueryList.Add(s.Key, s.Value));
@@ -164,16 +167,16 @@ class Sign
         {
             var values = realQueryList.GetValues(key)?.ToImmutableSortedSet() ?? ImmutableSortedSet<string>.Empty;
             return string.Join("&",
-                values.Select(value => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(value)}"));
+                values.Select(value => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}"));
         }));
         string canonicalStringBuilder =
             $"{method}\n" +
             $"{_path}\n" +
             $"{query}\n" +
-            $"host:{_host}\n" +
-            $"x-date:{xDate}\n" +
-            $"x-content-sha256:{xContentSha256}\n" +
             $"content-type:{contentType}\n" +
+            $"host:{_host}\n" +
+            $"x-content-sha256:{xContentSha256}\n" +
+            $"x-date:{xDate}\n" +
             $"\n" +
             $"{signHeader}\n" +
             $"{xContentSha256}";
