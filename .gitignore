@@ -1,2 +1,42 @@
+# IDE
 .idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Python
 venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# C/C++
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+signature/cpp/sign
+
+# Java
+*.class
+target/
+
+# Go
+*.exe
+
+# Rust
+signature/rust/target/
+
+# Node.js
+node_modules/
+
+# C#
+bin/
+obj/
+
+# Build
+build/
+dist/
+out/
